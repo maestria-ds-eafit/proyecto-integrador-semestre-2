@@ -40,9 +40,9 @@ Donde `policy-arn` es el ARN del trust policy, es decir el ARN de `EMRServerless
 
 ```terminal
 aws emr-serverless create-application \
-    --release-label emr-6.6.0 \
+    --release-label emr-7.0.0 \
     --type "SPARK" \
-    --name my-application
+    --name proyecto-integrador-semestre-2
 ```
 
 * Quinto, crear un job de EMR Serverless:
