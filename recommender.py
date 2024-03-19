@@ -9,6 +9,9 @@ if __name__ == "__main__":
         "s3://amazon-reviews-eafit/data/*.tsv", sep=r"\t", header=True
     )
 
+    # Filter out rows with null product_id
+    data = data.filter(data["product_id"].isNotNull())
+
     # Convert relevant columns to integer type
     data = (
         data.withColumn("customer_id", data["customer_id"].cast("int"))
