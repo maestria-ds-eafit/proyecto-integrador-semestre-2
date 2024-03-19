@@ -54,8 +54,8 @@ aws emr-serverless start-job-run \
     --name job-run-name \
     --job-driver '{
         "sparkSubmit": {
-          "entryPoint": "s3://DOC-EXAMPLE-BUCKET/scripts/wordcount.py",
-          "entryPointArguments": ["s3://DOC-EXAMPLE-BUCKET/emr-serverless-spark/output"],
+          "entryPoint": "s3://amazon-reviews-eafit/scripts/recommender.py",
+          "entryPointArguments": ["s3://amazon-reviews-eafit/emr-serverless-spark/output"],
           "sparkSubmitParameters": "--conf spark.executor.cores=1 --conf spark.executor.memory=4g --conf spark.driver.cores=1 --conf spark.driver.memory=4g --conf spark.executor.instances=1"
         }
     }'
