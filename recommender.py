@@ -5,7 +5,9 @@ from pyspark.sql import SparkSession
 spark = SparkSession.builder.appName("Collaborative Filtering").getOrCreate()  # type: ignore
 
 if __name__ == "__main__":
-    data = spark.read.csv("s3://amazon-reviews-eafit/*.tsv", sep=r"\t", header=True)
+    data = spark.read.csv(
+        "s3://amazon-reviews-eafit/data/*.tsv", sep=r"\t", header=True
+    )
 
     # Convert relevant columns to integer type
     data = (
