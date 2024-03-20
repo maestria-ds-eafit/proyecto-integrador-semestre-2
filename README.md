@@ -65,3 +65,10 @@ aws emr-serverless start-job-run \
 
 `application-id` es el ID de la aplicación creada en el paso anterior.
 `job-role-arn` es el ARN de `EMRServerlessS3RuntimeRole`
+
+## Ejecución de scripts local
+
+Para ejecutar un script local:
+
+* `pipenv shell`
+* `spark-submit --packages org.apache.hadoop:hadoop-aws:3.3.4 <script>.py`
