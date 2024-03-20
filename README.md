@@ -36,7 +36,7 @@ aws iam attach-role-policy \
     --policy-arn policy-arn
 ```
 
-Donde `policy-arn` es el ARN del trust policy, es decir el ARN de `EMRServerlessS3RuntimeRole`.
+Donde `policy-arn` es el ARN del trust policy, es decir el ARN de `EMRServerlessS3AndGlueAccessPolicy`.
 
 * Cuarto, crear una aplicación ser EMR Serverless:
 

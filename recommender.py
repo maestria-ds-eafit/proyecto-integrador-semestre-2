@@ -2,9 +2,14 @@ from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.ml.recommendation import ALS
 from pyspark.sql import SparkSession
 
-spark = SparkSession.builder.appName(  # type: ignore
-    "Collaborative Filtering"
-).getOrCreate()
+spark = (
+    SparkSession.builder.appName("Collaborative Filtering")  # type: ignore
+    .config(
+        "fs.s3a.aws.credentials.provider",
+        "com.amazonaws.auth.DefaultAWSCredentialsProviderChain",
+    )
+    .getOrCreate()
+)
 
 if __name__ == "__main__":
     data = spark.read.csv(
