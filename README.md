@@ -4,17 +4,18 @@ Proyecto integrador para el segundo semestre de la maestría de ciencia de datos
 
 ## Configuración para usar AWS EMR
 
+# Se instala el AWS CLI, para poder ejecutar comandos de AWS en la terminal ( Es primordial que sea desde la raiz)
 * Instalar el AWS CLI: <https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html>
 
 * Primero configurar el CLI de AWS.
-
+y
 ```terminal
 aws configure
 ```
 
 * Primero hay que crear un IAM Role con permisos para EMR y S3.
 
-```terminal
+```terminal desde la carpeta del proyecto 
 aws iam create-role \
     --role-name EMRServerlessS3RuntimeRole \
     --assume-role-policy-document file://emr-serverless-trust-policy.json
