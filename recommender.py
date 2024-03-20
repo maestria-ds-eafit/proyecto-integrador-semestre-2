@@ -16,15 +16,18 @@ if __name__ == "__main__":
         "s3a://amazon-reviews-eafit/data/*.tsv", sep=r"\t", header=True
     )
 
-    # Filter out rows with null product_id
-    data = data.filter(data["product_id"].isNotNull())
-
     # Convert relevant columns to integer type
     data = (
         data.withColumn("customer_id", data["customer_id"].cast("int"))
         .withColumn("product_id", data["product_id"].cast("int"))
         .withColumn("star_rating", data["star_rating"].cast("float"))
     )
+
+    # Filter out rows with null product_id
+    data = data.filter(data["product_id"].isNotNull())
+
+    # Filter out rows with null star_rating
+    data = data.filter(data["star_rating"].isNotNull())
 
     # Split data into training and test sets
     (training, test) = data.randomSplit([0.8, 0.2])
