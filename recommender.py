@@ -2,11 +2,13 @@ from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.ml.recommendation import ALS
 from pyspark.sql import SparkSession
 
-spark = SparkSession.builder.appName("Collaborative Filtering").getOrCreate()  # type: ignore
+spark = SparkSession.builder.appName(  # type: ignore
+    "Collaborative Filtering"
+).getOrCreate()
 
 if __name__ == "__main__":
     data = spark.read.csv(
-        "s3://amazon-reviews-eafit/data/*.tsv", sep=r"\t", header=True
+        "s3a://amazon-reviews-eafit/data/*.tsv", sep=r"\t", header=True
     )
 
     # Filter out rows with null product_id

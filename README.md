@@ -4,6 +4,8 @@ Proyecto integrador para el segundo semestre de la maestría de ciencia de datos
 
 ## Configuración para usar AWS EMR
 
+* Instalar el AWS CLI: <https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html>
+
 * Primero configurar el CLI de AWS.
 
 ```terminal
