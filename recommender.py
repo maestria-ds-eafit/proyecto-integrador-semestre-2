@@ -4,6 +4,7 @@ from pyspark.sql import SparkSession
 
 spark = (
     SparkSession.builder.appName("Collaborative Filtering")  # type: ignore
+    .config("fs.s3a.endpoint", "s3.us-east-2.amazonaws.com")
     .config(
         "fs.s3a.aws.credentials.provider",
         "com.amazonaws.auth.DefaultAWSCredentialsProviderChain",
