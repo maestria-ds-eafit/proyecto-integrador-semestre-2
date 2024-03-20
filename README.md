@@ -51,8 +51,8 @@ aws emr-serverless create-application \
 
 ```terminal
 aws emr-serverless start-job-run \
-    --application-id application-id \
-    --execution-role-arn job-role-arn \
+    --application-id <application-id> \
+    --execution-role-arn <job-role-arn> \
     --name job-run-name \
     --job-driver '{
         "sparkSubmit": {
@@ -62,3 +62,6 @@ aws emr-serverless start-job-run \
         }
     }'
 ```
+
+`application-id` es el ID de la aplicación creada en el paso anterior.
+`job-role-arn` es el ARN de `EMRServerlessS3RuntimeRole`
