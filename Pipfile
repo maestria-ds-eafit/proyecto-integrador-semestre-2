@@ -6,6 +6,9 @@ name = "pip_conf_index_global"
 [packages]
 pyspark = "~=3.5.1"
 numpy = "~=1.26.4"
+notebook = "~=7.1.3"
+boto3 = "~=1.34.92"
+python-dotenv = "~=1.0.1"
 
 [dev-packages]
 
