@@ -20,7 +20,9 @@ if __name__ == "__main__":
 
     # Save the result to a CSV file in S3
     grouped_data.write.csv(
-        "s3a://amazon-reviews-eafit/output/counts_per_category", mode="overwrite"
+        "s3a://amazon-reviews-eafit/output/counts_per_category",
+        mode="overwrite",
+        header=True,
     )
 
     # Stop SparkSession
