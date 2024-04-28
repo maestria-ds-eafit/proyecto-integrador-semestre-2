@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession
 
 spark = (
-    SparkSession.builder.appName("Calculate rows per category")  # type: ignore
+    SparkSession.builder.appName("Get sample")  # type: ignore
     .config("fs.s3a.endpoint", "s3.us-east-2.amazonaws.com")
     .config(
         "fs.s3a.aws.credentials.provider",
