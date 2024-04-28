@@ -59,9 +59,7 @@ if __name__ == "__main__":
     sampled_data = data.sampleBy("category", fractions=weights)
 
     # Save the result to a CSV file in S3
-    sampled_data.coalesce(1).write.csv(
-        "s3a://amazon-reviews-eafit/sample", mode="overwrite"
-    )
+    sampled_data.write.csv("s3a://amazon-reviews-eafit/sample", mode="overwrite")
 
     # Stop SparkSession
     spark.stop()

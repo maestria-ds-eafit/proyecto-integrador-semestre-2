@@ -19,7 +19,7 @@ if __name__ == "__main__":
     grouped_data = data.groupBy("category").count()
 
     # Save the result to a CSV file in S3
-    grouped_data.coalesce(1).write.csv(
+    grouped_data.write.csv(
         "s3a://amazon-reviews-eafit/output/counts_per_category", mode="overwrite"
     )
 
