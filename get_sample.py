@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
     # Save the result to a CSV file in S3
     sampled_data.write.csv(
-        "s3a://amazon-reviews-eafit/sample", mode="overwrite", header=True
+        "s3a://amazon-reviews-eafit/sample", mode="overwrite", header=True, sep=r"\t"
     )
 
     # Stop SparkSession
