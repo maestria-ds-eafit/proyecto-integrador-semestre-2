@@ -55,10 +55,8 @@ if __name__ == "__main__":
         "s3a://amazon-reviews-eafit/data/*.tsv", sep=r"\t", header=True
     )
 
-    # Perform groupBy operation on the "category" column
     sampled_data = data.sampleBy("category", fractions=weights)
 
-    # Save the result to a CSV file in S3
     sampled_data.write.csv(
         "s3a://amazon-reviews-eafit/sample", mode="overwrite", header=True, sep=r"\t"
     )
