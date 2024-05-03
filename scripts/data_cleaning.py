@@ -16,7 +16,6 @@ if __name__ == "__main__":
         "s3a://amazon-reviews-eafit/data/*.tsv", sep=r"\t", header=True
     )
 
-    # Code goes here
     # 1. Count how many records we have and save it to a variable
     total_records = data.count()
 
