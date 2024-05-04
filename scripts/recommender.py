@@ -48,10 +48,10 @@ if __name__ == "__main__":
     print(f"Root-mean-square error = {rmse}")
 
     # Generate top 10 product recommendations for each user
-    userRecs = model.recommendForAllUsers(10)
+    # userRecs = model.recommendForAllUsers(10)
 
     # Show top 10 recommendations for each user
-    print(userRecs.show())
+    # print(userRecs.show())
 
     summary = spark.createDataFrame(
         [
