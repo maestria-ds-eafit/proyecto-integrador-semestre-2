@@ -15,7 +15,7 @@ spark = (
 
 if __name__ == "__main__":
     data = spark.read.csv(
-        "s3a://amazon-reviews-eafit/refined/*.tsv", sep=r"\t", header=True
+        "s3a://amazon-reviews-eafit/refined/*.csv", sep=r"\t", header=True
     )
 
     indexer = StringIndexer(inputCol="product_id", outputCol="item_id")
