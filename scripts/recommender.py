@@ -1,6 +1,7 @@
 from pyspark.ml.evaluation import RegressionEvaluator
+from pyspark.ml.feature import StringIndexer
 from pyspark.ml.recommendation import ALS
-from pyspark.sql import SparkSession
+from pyspark.sql import Row, SparkSession
 
 spark = (
     SparkSession.builder.appName("Collaborative Filtering")  # type: ignore
@@ -14,21 +15,12 @@ spark = (
 
 if __name__ == "__main__":
     data = spark.read.csv(
-        "s3a://amazon-reviews-eafit/data/*.tsv", sep=r"\t", header=True
+        "s3a://amazon-reviews-eafit/refined/*.tsv", sep=r"\t", header=True
     )
 
-    # Convert relevant columns to integer type
-    data = (
-        data.withColumn("customer_id", data["customer_id"].cast("int"))
-        .withColumn("product_id", data["product_id"].cast("int"))
-        .withColumn("star_rating", data["star_rating"].cast("float"))
-    )
+    indexer = StringIndexer(inputCol="product_id", outputCol="item_id")
 
-    # Filter out rows with null product_id
-    data = data.filter(data["product_id"].isNotNull())
-
-    # Filter out rows with null star_rating
-    data = data.filter(data["star_rating"].isNotNull())
+    data = indexer.fit(data).transform(data)
 
     # Split data into training and test sets
     (training, test) = data.randomSplit([0.8, 0.2])
@@ -38,7 +30,7 @@ if __name__ == "__main__":
         maxIter=5,
         regParam=0.01,
         userCol="customer_id",
-        itemCol="product_id",
+        itemCol="item_id",
         ratingCol="star_rating",
     )
     model = als.fit(training)
@@ -56,6 +48,19 @@ if __name__ == "__main__":
 
     # Show top 10 recommendations for each user
     print(userRecs.show())
+
+    summary = spark.createDataFrame(
+        [
+            Row(metric="RMSE", value=rmse),
+        ]
+    )
+
+    (
+        summary.coalesce(1)  # Save as a single CSV file
+        .write.mode("overwrite")
+        .option("header", "true")
+        .csv("s3a://amazon-reviews-eafit/rmse")
+    )
 
     # Stop SparkSession
     spark.stop()
