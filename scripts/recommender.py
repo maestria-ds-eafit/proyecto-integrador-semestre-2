@@ -18,7 +18,9 @@ if __name__ == "__main__":
         "s3a://amazon-reviews-eafit/refined/*.csv", sep=r"\t", header=True
     )
 
-    data = data.withColumn("customer_id", data["star_rating"].cast("int"))
+    data = data.withColumn("customer_id", data["customer_id"].cast("int"))
+
+    data = data.withColumn("star_rating", data["star_rating"].cast("float"))
 
     indexer = StringIndexer(inputCol="product_id", outputCol="item_id")
 
