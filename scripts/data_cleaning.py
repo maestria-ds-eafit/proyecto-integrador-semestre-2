@@ -72,9 +72,7 @@ if __name__ == "__main__":
         )
     )
 
-    verified_data.write.csv(
-        "s3a://amazon-reviews-eafit/refined", mode="overwrite", header=True, sep=r"\t"
-    )
+    verified_data.write.parquet("s3a://amazon-reviews-eafit/refined", mode="overwrite")
 
     # Stop SparkSession
     spark.stop()
