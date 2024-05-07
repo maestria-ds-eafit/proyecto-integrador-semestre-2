@@ -42,17 +42,15 @@ if __name__ == "__main__":
         metricName="rmse", labelCol="star_rating", predictionCol="prediction"
     )
     rmse = evaluator.evaluate(predictions)
+    predictions_count = predictions.count()
+
+    print(f"Predictions count: {predictions_count}")
     print(f"Root-mean-square error = {rmse}")
-
-    # Generate top 10 product recommendations for each user
-    # userRecs = model.recommendForAllUsers(10)
-
-    # Show top 10 recommendations for each user
-    # print(userRecs.show())
 
     summary = spark.createDataFrame(
         [
-            Row(metric="RMSE", value=rmse),
+            Row(metric="RMSE", value=float(rmse)),
+            Row(metric="Predictions count", value=float(predictions_count)),
         ]
     )
 
