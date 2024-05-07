@@ -57,6 +57,11 @@ if __name__ == "__main__":
         "star_rating", verified_data["star_rating"].cast("float")
     )
 
+    # 10. Cast "customer_id" to int
+    verified_data = verified_data.withColumn(
+        "customer_id", data["customer_id"].cast("int")
+    )
+
     counts_df = spark.createDataFrame(
         [
             Row(metric="Total Records", value=total_records),

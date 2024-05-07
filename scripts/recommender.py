@@ -14,13 +14,7 @@ spark = (
 )
 
 if __name__ == "__main__":
-    data = spark.read.csv(
-        "s3a://amazon-reviews-eafit/refined/*.csv", sep=r"\t", header=True
-    )
-
-    data = data.withColumn("customer_id", data["customer_id"].cast("int"))
-
-    data = data.withColumn("star_rating", data["star_rating"].cast("float"))
+    data = spark.read.parquet("s3a://amazon-reviews-eafit/refined/")
 
     indexer = StringIndexer(inputCol="product_id", outputCol="item_id")
 
@@ -36,8 +30,8 @@ if __name__ == "__main__":
         userCol="customer_id",
         itemCol="item_id",
         ratingCol="star_rating",
-        seed= 42,
-        nonnegative = True,
+        seed=42,
+        nonnegative=True,
     )
     model = als.fit(training)
 

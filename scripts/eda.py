@@ -12,9 +12,7 @@ spark = (
 )
 
 if __name__ == "__main__":
-    verified_data = spark.read.csv(
-        "s3a://amazon-reviews-eafit/refined/*.csv", sep=r"\t", header=True
-    )
+    verified_data = spark.read.parquet("s3a://amazon-reviews-eafit/refined/")
 
     verified_records = verified_data.count()
 
