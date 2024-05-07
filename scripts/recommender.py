@@ -36,6 +36,8 @@ if __name__ == "__main__":
         userCol="customer_id",
         itemCol="item_id",
         ratingCol="star_rating",
+        seed= 42,
+        nonnegative = True,
     )
     model = als.fit(training)
 
