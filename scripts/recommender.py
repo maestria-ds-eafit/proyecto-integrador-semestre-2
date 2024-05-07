@@ -32,6 +32,7 @@ if __name__ == "__main__":
         ratingCol="star_rating",
         seed=42,
         nonnegative=True,
+        coldStartStrategy="drop",
     )
     model = als.fit(training)
 
