@@ -86,7 +86,7 @@ if __name__ == "__main__":
         "customer_id", sampled_data["customer_id"].cast("int")
     )
 
-    sampled_data = data.sampleBy("category", fractions=weights)
+    sampled_data = sampled_data.sampleBy("category", fractions=weights)
 
     sampled_data.write.parquet("s3a://amazon-reviews-eafit/sample", mode="overwrite")
 
