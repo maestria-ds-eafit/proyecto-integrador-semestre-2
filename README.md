@@ -72,4 +72,4 @@ aws emr-serverless start-job-run \
 Para ejecutar un script local:
 
 * `pipenv shell`
-* `spark-submit --packages org.apache.hadoop:hadoop-aws:3.3.4 <script_name>.py`
+* `spark-submit <script_name>.py`
