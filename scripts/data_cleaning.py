@@ -53,6 +53,8 @@ if __name__ == "__main__":
         customers_with_more_than_three_reviews, "customer_id", "inner"
     ).drop("count")
 
+    cleaned_data_count = cleaned_data.count()
+
     # Cast "star_rating" to float
     cleaned_data = cleaned_data.withColumn(
         "star_rating", cleaned_data["star_rating"].cast("float")
@@ -70,7 +72,7 @@ if __name__ == "__main__":
             Row(metric="Verified Records", value=verified_data_count),
             Row(
                 metric="Customers with more than three reviews count",
-                value=customers_with_more_than_three_reviews,
+                value=cleaned_data_count,
             ),
         ]
     )
