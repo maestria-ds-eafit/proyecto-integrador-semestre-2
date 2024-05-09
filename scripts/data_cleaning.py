@@ -3,6 +3,7 @@ from pyspark.sql import functions as F
 
 spark = (
     SparkSession.builder.appName("EDA")  # type: ignore
+    .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.3.4")
     .config("fs.s3a.endpoint", "s3.us-east-2.amazonaws.com")
     .config(
         "fs.s3a.aws.credentials.provider",
@@ -59,7 +60,7 @@ if __name__ == "__main__":
 
     # 10. Cast "customer_id" to int
     verified_data = verified_data.withColumn(
-        "customer_id", data["customer_id"].cast("int")
+        "customer_id", verified_data["customer_id"].cast("int")
     )
 
     counts_df = spark.createDataFrame(

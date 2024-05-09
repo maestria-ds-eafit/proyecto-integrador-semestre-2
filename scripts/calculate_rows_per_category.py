@@ -2,6 +2,7 @@ from pyspark.sql import SparkSession
 
 spark = (
     SparkSession.builder.appName("Calculate rows per category")  # type: ignore
+    .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.3.4")
     .config("fs.s3a.endpoint", "s3.us-east-2.amazonaws.com")
     .config(
         "fs.s3a.aws.credentials.provider",

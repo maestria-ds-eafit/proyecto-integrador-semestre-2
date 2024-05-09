@@ -1,7 +1,9 @@
 from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
 
 spark = (
     SparkSession.builder.appName("Get sample")  # type: ignore
+    .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.3.4")
     .config("fs.s3a.endpoint", "s3.us-east-2.amazonaws.com")
     .config(
         "fs.s3a.aws.credentials.provider",
@@ -55,11 +57,38 @@ if __name__ == "__main__":
         "s3a://amazon-reviews-eafit/data/*.tsv", sep=r"\t", header=True
     )
 
+    selected_data = data.select(
+        "customer_id",
+        "product_id",
+        "star_rating",
+        "category",
+        "review_date",
+        "verified_purchase",
+    )
+
+    filtered_data = (
+        selected_data.groupBy("customer_id").count().filter(F.col("count") >= 3)
+    )
+
+    filtered_data = selected_data.join(filtered_data, "customer_id", "inner").drop(
+        "count"
+    )
+
+    sampled_data = filtered_data.dropna()
+
+    sampled_data = filtered_data.filter(data.verified_purchase == True)
+
+    sampled_data = sampled_data.withColumn(
+        "star_rating", sampled_data["star_rating"].cast("float")
+    )
+
+    sampled_data = sampled_data.withColumn(
+        "customer_id", sampled_data["customer_id"].cast("int")
+    )
+
     sampled_data = data.sampleBy("category", fractions=weights)
 
-    sampled_data.write.csv(
-        "s3a://amazon-reviews-eafit/sample", mode="overwrite", header=True, sep=r"\t"
-    )
+    sampled_data.write.parquet("s3a://amazon-reviews-eafit/sample", mode="overwrite")
 
     # Stop SparkSession
     spark.stop()
