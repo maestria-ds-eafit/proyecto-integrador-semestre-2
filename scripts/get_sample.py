@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import when
 
 spark = (
     SparkSession.builder.appName("Get sample")  # type: ignore
@@ -52,9 +53,22 @@ weights = {
 }
 
 if __name__ == "__main__":
-    data = spark.read.parquet("s3a://amazon-reviews-eafit/refined/")
+    data = spark.read.csv(
+        "s3a://amazon-reviews-eafit/data/*.tsv", sep=r"\t", header=True
+    )
+
+    data = data.dropna()
+
+    data = data.withColumn("star_rating", data["star_rating"].cast("float"))
 
     sampled_data = data.sampleBy("category", fractions=weights)
+
+    sampled_data = sampled_data.withColumn(
+        "sentiment",
+        when(sampled_data["star_rating"] <= 2, "negative")
+        .when(sampled_data["star_rating"] == 3, "neutral")
+        .otherwise("positive"),
+    )
 
     sampled_data.write.parquet("s3a://amazon-reviews-eafit/sample", mode="overwrite")
 
