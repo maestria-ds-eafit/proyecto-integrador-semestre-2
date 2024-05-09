@@ -19,6 +19,7 @@ dependencies = [
     "awswrangler>=3.7.3",
     "ipywidgets>=8.1.2",
     "torch>=2.3.0",
+    "numpy>=1.26.4",
 ]
 requires-python = "==3.11.*"
 readme = "README.md"
