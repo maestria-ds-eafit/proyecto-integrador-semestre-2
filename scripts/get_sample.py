@@ -76,7 +76,7 @@ if __name__ == "__main__":
 
     sampled_data = filtered_data.dropna()
 
-    sampled_data = filtered_data.filter(data.verified_purchase == True)
+    sampled_data = filtered_data.filter(sampled_data.verified_purchase == True)
 
     sampled_data = sampled_data.withColumn(
         "star_rating", sampled_data["star_rating"].cast("float")
