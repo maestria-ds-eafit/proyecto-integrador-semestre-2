@@ -4,6 +4,8 @@ from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.ml.feature import StringIndexer
 from pyspark.ml.recommendation import ALS
 from pyspark.sql import Row, SparkSession
+from pyspark.sql.functions import col, row_number
+from pyspark.sql.window import Window
 
 parser = argparse.ArgumentParser()
 
@@ -29,6 +31,18 @@ spark = (
     .getOrCreate()
 )
 
+
+def split_data(data):
+    windowSpec = Window.partitionBy("customer_id").orderBy(col("review_date").desc())
+    data = data.withColumn("index", row_number().over(windowSpec))
+
+    training = data.where(col("index") >= 3)
+    validation = data.where(col("index") == 2)
+    test = data.where(col("index") <= 1)
+
+    return training, validation, test
+
+
 if __name__ == "__main__":
     data_path = f"s3a://amazon-reviews-eafit/{'sample' if use_sampling else 'refined'}/"
     data = spark.read.parquet(data_path)
@@ -37,8 +51,7 @@ if __name__ == "__main__":
 
     data = indexer.fit(data).transform(data)
 
-    # Split data into training and test sets
-    (training, test) = data.randomSplit([0.8, 0.2])
+    training, validation, test = split_data(data)
 
     # Build the recommendation model using ALS on the training data
     als = ALS(
@@ -54,32 +67,47 @@ if __name__ == "__main__":
     model = als.fit(training)
 
     # Evaluate the model by computing the RMSE on the test data
-    predictions = model.transform(test)
+    predictions_validation = model.transform(validation)
+    predictions_test = model.transform(test)
     evaluator_rmse = RegressionEvaluator(
         metricName="rmse", labelCol="star_rating", predictionCol="prediction"
     )
     evaluator_mae = RegressionEvaluator(
         metricName="mae", labelCol="star_rating", predictionCol="prediction"
     )
-    rmse = evaluator_rmse.evaluate(predictions)
-    mae = evaluator_mae.evaluate(predictions)
-    predictions_count = predictions.count()
+    rmse_validation = evaluator_rmse.evaluate(predictions_validation)
+    mae_validation = evaluator_mae.evaluate(predictions_validation)
+    predictions_validation_count = predictions_validation.count()
+    rmse_test = evaluator_rmse.evaluate(predictions_test)
+    mae_test = evaluator_mae.evaluate(predictions_test)
+    predictions_test_count = predictions_test.count()
 
-    print(f"Predictions count: {predictions_count}")
-    print(f"RMSE = {rmse}")
-    print(f"MAE = {mae}")
+    print(f"Predictions count (validation): {predictions_validation_count}")
+    print(f"RMSE (validation) = {rmse_validation}")
+    print(f"MAE (validation) = {mae_validation}")
+
+    print(f"Predictions count (test): {predictions_test_count}")
+    print(f"RMSE (test) = {rmse_test}")
+    print(f"MAE (test) = {mae_test}")
 
     summary = spark.createDataFrame(
         [
-            Row(metric="Predictions count", value=float(predictions_count)),
-            Row(metric="RMSE", value=float(rmse)),
-            Row(metric="MAE", value=float(mae)),
+            Row(
+                metric="Predictions count (validation)",
+                value=float(predictions_validation_count),
+            ),
+            Row(metric="RMSE (validation)", value=float(rmse_validation)),
+            Row(metric="MAE (validation)", value=float(mae_validation)),
+            Row(
+                metric="Predictions count (test)",
+                value=float(predictions_test_count),
+            ),
+            Row(metric="RMSE (test)", value=float(rmse_test)),
+            Row(metric="MAE (test)", value=float(mae_test)),
         ]
     )
 
-    summary_path = (
-        f"s3a://amazon-reviews-eafit/{'rmse' if use_sampling else 'rmse-sample'}"
-    )
+    summary_path = f"s3a://amazon-reviews-eafit/{'rmse-stratified-split-sample' if use_sampling else 'rmse-stratified-split'}"
 
     (
         summary.coalesce(1)  # Save as a single CSV file
