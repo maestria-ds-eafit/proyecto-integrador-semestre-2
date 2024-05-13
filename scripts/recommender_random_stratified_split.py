@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
     data = indexer.fit(data).transform(data)
 
-    training, test = split_data(data)
+    training, test = split_data(data, percent_items_to_mask=0.3)
     # Descomentar cuando sepamos cómo hacer el validation con toda la data
     # training, validation = split_data(training)
 
