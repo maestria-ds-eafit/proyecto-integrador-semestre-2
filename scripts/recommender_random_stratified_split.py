@@ -4,6 +4,8 @@ from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.ml.feature import StringIndexer
 from pyspark.ml.recommendation import ALS
 from pyspark.sql import Row, SparkSession
+from pyspark.sql.functions import col, expr, rank
+from pyspark.sql.window import Window
 
 parser = argparse.ArgumentParser()
 
@@ -19,7 +21,7 @@ args = parser.parse_args()
 use_sampling = args.use_sampling
 
 spark = (
-    SparkSession.builder.appName("Collaborative Filtering with random split")  # type: ignore
+    SparkSession.builder.appName("Collaborative Filtering with random stratified split")  # type: ignore
     .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.3.4")
     .config("fs.s3a.endpoint", "s3.us-east-2.amazonaws.com")
     .config(
@@ -28,6 +30,27 @@ spark = (
     )
     .getOrCreate()
 )
+
+
+def split_data(data, percent_items_to_mask=0.2):
+    user_window = Window.partitionBy("customer_id").orderBy(col("product_id").desc())
+    data_processed = data.withColumn(
+        "number_of_products", expr("count(*) over (partition by customer_id)")
+    )
+    data_processed = data_processed.withColumn(
+        "number_of_products_to_mask",
+        (col("number_of_products") * percent_items_to_mask).cast("int"),
+    )
+    data_processed = data_processed.withColumn("product_rank", rank().over(user_window))
+
+    training = data_processed.filter(
+        col("product_rank") > col("number_of_products_to_mask")
+    )
+    test = data_processed.filter(
+        col("product_rank") <= col("number_of_products_to_mask")
+    )
+
+    return training, test
 
 
 def get_metrics(model, dataset):
@@ -52,15 +75,13 @@ if __name__ == "__main__":
 
     data = indexer.fit(data).transform(data)
 
-    # Split data into training and test sets
-    (training, test) = data.randomSplit([0.8, 0.2])
-
-    # Descomentar cuando sepamos cómo hacer la validación en toda la data
-    # (training, validation) = training.randomSplit([0.8, 0.2])
+    training, test = split_data(data)
+    # Descomentar cuando sepamos cómo hacer el validation con toda la data
+    # training, validation = split_data(training)
 
     # Build the recommendation model using ALS on the training data
     als = ALS(
-        maxIter=5,
+        maxIter=15,
         regParam=0.1,
         userCol="customer_id",
         itemCol="item_id",
@@ -103,7 +124,7 @@ if __name__ == "__main__":
         ]
     )
 
-    summary_path = f"s3a://amazon-reviews-eafit/{'rmse-random-split-sample' if use_sampling else 'rmse-random-split'}"
+    summary_path = f"s3a://amazon-reviews-eafit/{'rmse-random-stratified-split-sample' if use_sampling else 'rmse-random-stratified-split'}"
 
     (
         summary.coalesce(1)  # Save as a single CSV file

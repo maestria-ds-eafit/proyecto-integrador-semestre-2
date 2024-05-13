@@ -38,6 +38,23 @@ def run_emr_job(s3_key):
     spark_kryoserializer_buffer_max = os.getenv(
         "SPARK_KRYOSERIALIZER_BUFFER_MAX", default="512m"
     )
+    use_sampling = os.getenv("USE_SAMPLING", default=False) == "1"
+
+    job_driver = (
+        f'\'{{"sparkSubmit": {{"entryPoint": '
+        f'"s3://{bucket_name}/{file_path}", '
+        f'"entryPointArguments" :['
+        '"--use-sampling", '
+        f'"{1 if use_sampling else 0}"'
+        "], "
+        '"sparkSubmitParameters": "'
+        f"--conf spark.kryoserializer.buffer.max={spark_kryoserializer_buffer_max} "
+        f"--conf spark.executor.instances={spark_executor_instances} "
+        f"--conf spark.driver.memory={spark_driver_memory} "
+        f"--conf spark.driver.cores={spark_driver_cores} "
+        f"--conf spark.executor.memory={spark_executor_memory} "
+        f"--conf spark.executor.cores={spark_executor_cores}\"}}}}'"
+    )
 
     command = [
         "aws",
@@ -50,7 +67,7 @@ def run_emr_job(s3_key):
         "--name",
         s3_key,
         "--job-driver",
-        f'\'{{"sparkSubmit": {{"entryPoint": "s3://{bucket_name}/{file_path}", "sparkSubmitParameters": "--conf spark.kryoserializer.buffer.max={spark_kryoserializer_buffer_max} --conf spark.executor.instances={spark_executor_instances} --conf spark.driver.memory={spark_driver_memory} --conf spark.driver.cores={spark_driver_cores} --conf spark.executor.memory={spark_executor_memory} --conf spark.executor.cores={spark_executor_cores}"}}}}\'',
+        job_driver,
     ]
     try:
         string_command = " ".join(command)

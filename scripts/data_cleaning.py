@@ -2,7 +2,7 @@ from pyspark.sql import Row, SparkSession
 from pyspark.sql import functions as F
 
 spark = (
-    SparkSession.builder.appName("EDA")  # type: ignore
+    SparkSession.builder.appName("Data Cleaning")  # type: ignore
     .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.3.4")
     .config("fs.s3a.endpoint", "s3.us-east-2.amazonaws.com")
     .config(
@@ -28,6 +28,7 @@ if __name__ == "__main__":
         "category",
         "review_date",
         "verified_purchase",
+        "review_id",
     )
 
     # Delete all those records that have nulls on any of the columns

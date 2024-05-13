@@ -21,7 +21,7 @@ args = parser.parse_args()
 use_sampling = args.use_sampling
 
 spark = (
-    SparkSession.builder.appName("Collaborative Filtering")  # type: ignore
+    SparkSession.builder.appName("Collaborative Filtering with stratified split")  # type: ignore
     .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.3.4")
     .config("fs.s3a.endpoint", "s3.us-east-2.amazonaws.com")
     .config(
@@ -30,6 +30,20 @@ spark = (
     )
     .getOrCreate()
 )
+
+
+def get_metrics(model, dataset):
+    predictions = model.transform(dataset)
+    evaluator_rmse = RegressionEvaluator(
+        metricName="rmse", labelCol="star_rating", predictionCol="prediction"
+    )
+    evaluator_mae = RegressionEvaluator(
+        metricName="mae", labelCol="star_rating", predictionCol="prediction"
+    )
+    rmse = evaluator_rmse.evaluate(predictions)
+    mae = evaluator_mae.evaluate(predictions)
+    predictions_count = predictions.count()
+    return rmse, mae, predictions_count
 
 
 def split_data(data):
@@ -44,7 +58,7 @@ def split_data(data):
 
 
 if __name__ == "__main__":
-    data_path = f"s3a://amazon-reviews-eafit/{'sample' if use_sampling else 'refined'}/"
+    data_path = f"s3a://amazon-reviews-eafit/{'sample-for-model' if use_sampling else 'refined'}/"
     data = spark.read.parquet(data_path)
 
     indexer = StringIndexer(inputCol="product_id", outputCol="item_id")
@@ -67,24 +81,14 @@ if __name__ == "__main__":
     model = als.fit(training)
 
     # Evaluate the model by computing the RMSE on the test data
-    predictions_validation = model.transform(validation)
-    predictions_test = model.transform(test)
-    evaluator_rmse = RegressionEvaluator(
-        metricName="rmse", labelCol="star_rating", predictionCol="prediction"
-    )
-    evaluator_mae = RegressionEvaluator(
-        metricName="mae", labelCol="star_rating", predictionCol="prediction"
-    )
-    rmse_validation = evaluator_rmse.evaluate(predictions_validation)
-    mae_validation = evaluator_mae.evaluate(predictions_validation)
-    predictions_validation_count = predictions_validation.count()
-    rmse_test = evaluator_rmse.evaluate(predictions_test)
-    mae_test = evaluator_mae.evaluate(predictions_test)
-    predictions_test_count = predictions_test.count()
+    rmse_test, mae_test, predictions_test_count = get_metrics(model, test)
 
-    print(f"Predictions count (validation): {predictions_validation_count}")
-    print(f"RMSE (validation) = {rmse_validation}")
-    print(f"MAE (validation) = {mae_validation}")
+    # Descomentar cuando sepamos cómo hacer la validación en toda la data
+    # rmse_validation, mae_validation, predictions_validation_count = get_metrics(model, validation)
+
+    # print(f"Predictions count (validation): {predictions_validation_count}")
+    # print(f"RMSE (validation) = {rmse_validation}")
+    # print(f"MAE (validation) = {mae_validation}")
 
     print(f"Predictions count (test): {predictions_test_count}")
     print(f"RMSE (test) = {rmse_test}")
@@ -92,12 +96,13 @@ if __name__ == "__main__":
 
     summary = spark.createDataFrame(
         [
-            Row(
-                metric="Predictions count (validation)",
-                value=float(predictions_validation_count),
-            ),
-            Row(metric="RMSE (validation)", value=float(rmse_validation)),
-            Row(metric="MAE (validation)", value=float(mae_validation)),
+            # Descomentar cuando sepamos cómo hacer la validación en toda la data
+            # Row(
+            #     metric="Predictions count (validation)",
+            #     value=float(predictions_validation_count),
+            # ),
+            # Row(metric="RMSE (validation)", value=float(rmse_validation)),
+            # Row(metric="MAE (validation)", value=float(mae_validation)),
             Row(
                 metric="Predictions count (test)",
                 value=float(predictions_test_count),
