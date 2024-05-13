@@ -44,7 +44,7 @@ def run_emr_job(s3_key):
         f'\'{{"sparkSubmit": {{"entryPoint": '
         f'"s3://{bucket_name}/{file_path}", '
         f'"entryPointArguments": ['
-        f'"{"--use-sampling" if use_sampling else "--no-use-sampling"}"'
+        f'{"--use-sampling" if use_sampling else ""}'
         "], "
         '"sparkSubmitParameters": "'
         f"--conf spark.kryoserializer.buffer.max={spark_kryoserializer_buffer_max} "
