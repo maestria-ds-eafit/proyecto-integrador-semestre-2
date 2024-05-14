@@ -4,7 +4,7 @@ Proyecto integrador para el segundo semestre de la maestría de ciencia de datos
 
 ## Configuración para usar AWS EMR
 
-* Instalar las dependencias de Python: `pipenv install`
+* Instalar las dependencias de Python: `pdm install`
 
 * Instalar el AWS CLI: <https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html>
 
@@ -49,23 +49,13 @@ aws emr-serverless create-application \
     --name proyecto-integrador-semestre-2
 ```
 
-* Quinto, crear un job de EMR Serverless:
+* Quinto, existe un script llamado `main.py` que permite ejecutar jobs en EMR Serverless. Para ejecutar un job, se debe ejecutar el siguiente comando:
 
 ```terminal
-aws emr-serverless start-job-run \
-    --application-id <application-id> \
-    --execution-role-arn <job-role-arn> \
-    --name job-run-name \
-    --job-driver '{
-        "sparkSubmit": {
-          "entryPoint": "s3://amazon-reviews-eafit/scripts/recommender.py",
-          "sparkSubmitParameters": "--conf spark.executor.cores=1 --conf spark.executor.memory=4g --conf spark.driver.cores=1 --conf spark.driver.memory=4g --conf spark.executor.instances=1 --conf spark.kryoserializer.buffer.max=512m"
-        }
-    }'
+python main.py scripts/<nombre_del_script>.py
 ```
 
-`application-id` es el ID de la aplicación creada en el paso anterior.
-`job-role-arn` es el ARN de `EMRServerlessS3RuntimeRole`
+> IMPORTANTE: llenar las variables de entorno en el archivo `.env` con la información del `.env.template`.
 
 ## Ejecución de scripts local
 
@@ -73,3 +63,10 @@ Para ejecutar un script local:
 
 * `pipenv shell`
 * `spark-submit <script_name>.py`
+
+Se recomienda que se ejecute solo con un sample de los datos, para no sobrecargar el sistema.
+
+## Para descargar los modelos del bucket
+
+* `aws s3 cp --recursive s3://amazon-reviews-eafit/model-random-stratified-split-sample model-random-stratified-split-sample`
+* `aws s3 cp --recursive s3://amazon-reviews-eafit/inverter-random-stratified-split-sample inverter-random-stratified-split-sample`

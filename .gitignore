@@ -164,3 +164,7 @@ cython_debug/
 data/results/localALS.csv
 data/prediction_sentiment
 notebooks/inverter
+model-random-stratified-split
+model-random-stratified-split-sample
+inverter-random-stratified-split
+inverter-random-stratified-split-sample

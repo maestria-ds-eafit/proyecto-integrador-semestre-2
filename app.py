@@ -1,25 +1,25 @@
 import os
 
 import streamlit as st
+from dotenv import load_dotenv
 from pyspark.ml.feature import IndexToString
 from pyspark.ml.recommendation import ALSModel
 from pyspark.sql import SparkSession
 
-spark = (
-    SparkSession.builder.appName("Streamlit App")  # type: ignore
-    .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.3.4")
-    .config("fs.s3a.endpoint", "s3.us-east-2.amazonaws.com")
-    .config(
-        "fs.s3a.aws.credentials.provider",
-        "com.amazonaws.auth.DefaultAWSCredentialsProviderChain",
-    )
-    .getOrCreate()
-)
+load_dotenv()
+
+spark = SparkSession.builder.appName("Recommendations App").getOrCreate()  # type: ignore
+bucket_name = os.getenv("BUCKET_NAME")
+use_sampling = os.getenv("USE_SAMPLING", default=True) == "1"
 model = ALSModel.load(
-    f"s3a://{os.getenv('BUCKET_NAME')}/model-random-stratified-split-sample"
+    "model-random-stratified-split-sample"
+    if use_sampling
+    else "model-random-stratified-split"
 )
 inverter = IndexToString.load(
-    f"s3a://{os.getenv('BUCKET_NAME')}/inverter-random-stratified-split-sample"
+    "inverter-random-stratified-split-sample"
+    if use_sampling
+    else "inverter-random-stratified-split"
 )
 
 
