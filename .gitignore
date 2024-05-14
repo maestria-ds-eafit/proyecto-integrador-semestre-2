@@ -163,3 +163,4 @@ cython_debug/
 # data
 data/results/localALS.csv
 data/prediction_sentiment
+notebooks/inverter

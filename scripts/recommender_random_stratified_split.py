@@ -1,7 +1,7 @@
 import argparse
 
 from pyspark.ml.evaluation import RegressionEvaluator
-from pyspark.ml.feature import StringIndexer
+from pyspark.ml.feature import IndexToString, StringIndexer
 from pyspark.ml.recommendation import ALS
 from pyspark.sql import Row, SparkSession
 from pyspark.sql.functions import col, expr, rank
@@ -67,13 +67,27 @@ def get_metrics(model, dataset):
     return rmse, mae, predictions_count
 
 
+def get_inverter(data):
+    indexer = StringIndexer(inputCol="product_id", outputCol="item_id")
+
+    indexer_model = indexer.fit(data)
+
+    inverter = IndexToString(
+        inputCol="item_id", outputCol="original_item_id", labels=indexer_model.labels
+    )
+
+    inverter.write().overwrite().save(
+        f"s3a://amazon-reviews-eafit/{'inverter-random-stratified-split-sample' if use_sampling else 'inverter-random-stratified-split'}"
+    )
+
+    return indexer_model.transform(data)
+
+
 if __name__ == "__main__":
     data_path = f"s3a://amazon-reviews-eafit/{'sample-for-model' if use_sampling else 'refined'}/"
     data = spark.read.parquet(data_path)
 
-    indexer = StringIndexer(inputCol="product_id", outputCol="item_id")
-
-    data = indexer.fit(data).transform(data)
+    data = get_inverter(data)
 
     training, test = split_data(data, percent_items_to_mask=0.3)
     # Descomentar cuando sepamos cómo hacer el validation con toda la data
