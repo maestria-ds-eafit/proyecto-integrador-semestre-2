@@ -56,22 +56,19 @@ if __name__ == "__main__":
     )
 
     (
-        summary_statistics.coalesce(1)  # Save as a single CSV file
-        .write.mode("overwrite")
+        summary_statistics.write.mode("overwrite")
         .option("header", "true")
         .csv("s3://amazon-reviews-eafit/eda/summary_statistics")
     )
 
     (
-        avg_rating_per_category.coalesce(1)  # Save as a single CSV file
-        .write.mode("overwrite")
+        avg_rating_per_category.write.mode("overwrite")
         .option("header", "true")
         .csv("s3://amazon-reviews-eafit/eda/avg_rating_per_category")
     )
 
     (
-        records_per_category.coalesce(1)  # Save as a single CSV file
-        .write.mode("overwrite")
+        records_per_category.write.mode("overwrite")
         .option("header", "true")
         .csv("s3://amazon-reviews-eafit/eda/records_per_category")
     )
