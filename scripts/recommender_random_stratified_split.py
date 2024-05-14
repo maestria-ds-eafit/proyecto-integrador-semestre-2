@@ -67,7 +67,7 @@ def get_metrics(model, dataset):
     return rmse, mae, predictions_count
 
 
-def get_inverter(data):
+def transform_data(data):
     indexer = StringIndexer(inputCol="product_id", outputCol="item_id")
 
     indexer_model = indexer.fit(data)
@@ -80,14 +80,16 @@ def get_inverter(data):
         f"s3a://amazon-reviews-eafit/{'inverter-random-stratified-split-sample' if use_sampling else 'inverter-random-stratified-split'}"
     )
 
-    return indexer_model.transform(data)
+    transformed_data = indexer_model.transform(data)
+
+    return transformed_data
 
 
 if __name__ == "__main__":
     data_path = f"s3a://amazon-reviews-eafit/{'sample-for-model' if use_sampling else 'refined'}/"
     data = spark.read.parquet(data_path)
 
-    data = get_inverter(data)
+    data = transform_data(data)
 
     training, test = split_data(data, percent_items_to_mask=0.3)
     # Descomentar cuando sepamos cómo hacer el validation con toda la data
