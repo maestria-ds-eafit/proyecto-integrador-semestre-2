@@ -29,6 +29,8 @@ if __name__ == "__main__":
         "review_date",
         "verified_purchase",
         "review_id",
+        "product_title",
+        "product_category",
     )
 
     # Delete all those records that have nulls on any of the columns
@@ -78,10 +80,8 @@ if __name__ == "__main__":
         ]
     )
 
-    (
-        counts_df.coalesce(1).write.csv(  # Save as a single CSV file
-            "s3://amazon-reviews-eafit/eda/counts", mode="overwrite", header=True
-        )
+    counts_df.write.csv(
+        "s3://amazon-reviews-eafit/eda/counts", mode="overwrite", header=True
     )
 
     cleaned_data.write.parquet("s3://amazon-reviews-eafit/refined", mode="overwrite")

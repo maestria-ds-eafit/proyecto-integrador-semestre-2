@@ -1,5 +1,6 @@
 import os
 
+import awswrangler as wr
 import streamlit as st
 from dotenv import load_dotenv
 from pyspark.ml.feature import IndexToString
@@ -21,6 +22,8 @@ inverter = IndexToString.load(
     if use_sampling
     else "inverter-random-stratified-split"
 )
+
+df = wr.s3.read_parquet(path="s3://amazon-reviews-eafit/sample-for-model/")
 
 
 def main():
