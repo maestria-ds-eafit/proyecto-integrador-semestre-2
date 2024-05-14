@@ -27,18 +27,18 @@ def main():
 
     if st.button("Obtener recomendaciones"):
         if id_input:
+            customer_id = int(id_input)
+            products_bought = data[data["customer_id"] == customer_id][
+                ["product_id", "product_title", "product_category"]
+            ]
+            st.write("Productos comprados por el usuario:")
+            st.dataframe(products_bought, hide_index=True)
             with st.spinner("Por favor espere..."):
                 try:
-                    customer_id = int(id_input)
                     df = spark.createDataFrame([(customer_id,)], ["customer_id"])
                     recommendations = model.recommendForUserSubset(
                         df, numItems=int(num_recommendations)
                     )
-                    products_bought = data[data["customer_id"] == customer_id][
-                        ["product_id", "product_title", "product_category"]
-                    ]
-                    st.write("Productos comprados por el usuario:")
-                    st.dataframe(products_bought)
 
                     if recommendations.count() == 0:
                         st.warning(
@@ -65,12 +65,16 @@ def main():
                             ],
                             on="product_id",
                         )
-                        # predictions_df.drop("item_id", axis=1, inplace=True)
-                        # # Puts item_id as the first column
-                        # cols = list(predictions_df.columns)
-                        # cols = [cols[-1]] + cols[:-1]
-                        # predictions_df = predictions_df[cols]
-                        st.dataframe(predictions_df)
+                        predictions_df.drop("item_id", axis=1, inplace=True)
+                        predictions_df = predictions_df[
+                            [
+                                "product_id",
+                                "product_title",
+                                "product_category",
+                                "rating",
+                            ]
+                        ]
+                        st.dataframe(predictions_df, hide_index=True)
                 except ValueError:
                     st.error("Por favor introduce un ID válido.")
         else:
