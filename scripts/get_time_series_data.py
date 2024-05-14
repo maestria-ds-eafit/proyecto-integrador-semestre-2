@@ -14,7 +14,7 @@ spark = (
 
 if __name__ == "__main__":
     data = spark.read.csv(
-        "s3a://amazon-reviews-eafit/data/*.tsv", sep=r"\t", header=True
+        "s3://amazon-reviews-eafit/data/*.tsv", sep=r"\t", header=True
     )
 
     data = data.dropna()
@@ -49,13 +49,13 @@ if __name__ == "__main__":
     )
 
     negative_df.write.parquet(
-        "s3a://amazon-reviews-eafit/time-series-data/negative", mode="overwrite"
+        "s3://amazon-reviews-eafit/time-series-data/negative", mode="overwrite"
     )
     neutral_df.write.parquet(
-        "s3a://amazon-reviews-eafit/time-series-data/neutral", mode="overwrite"
+        "s3://amazon-reviews-eafit/time-series-data/neutral", mode="overwrite"
     )
     positive_df.write.parquet(
-        "s3a://amazon-reviews-eafit/time-series-data/positive", mode="overwrite"
+        "s3://amazon-reviews-eafit/time-series-data/positive", mode="overwrite"
     )
 
     spark.stop()

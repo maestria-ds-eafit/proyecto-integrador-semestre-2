@@ -13,7 +13,7 @@ spark = (
 
 if __name__ == "__main__":
     data = spark.read.csv(
-        "s3a://amazon-reviews-eafit/data/*.tsv", sep=r"\t", header=True
+        "s3://amazon-reviews-eafit/data/*.tsv", sep=r"\t", header=True
     )
 
     # Perform groupBy operation on the "category" column
@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     # Save the result to a CSV file in S3
     grouped_data.write.csv(
-        "s3a://amazon-reviews-eafit/output/counts_per_category",
+        "s3://amazon-reviews-eafit/output/counts_per_category",
         mode="overwrite",
         header=True,
     )

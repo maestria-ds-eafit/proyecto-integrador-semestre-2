@@ -45,7 +45,7 @@ def get_metrics(model, dataset):
 
 
 if __name__ == "__main__":
-    data_path = f"s3a://amazon-reviews-eafit/{'sample-for-model' if use_sampling else 'refined'}/"
+    data_path = f"s3://amazon-reviews-eafit/{'sample-for-model' if use_sampling else 'refined'}/"
     data = spark.read.parquet(data_path)
 
     indexer = StringIndexer(inputCol="product_id", outputCol="item_id")
@@ -103,7 +103,7 @@ if __name__ == "__main__":
         ]
     )
 
-    summary_path = f"s3a://amazon-reviews-eafit/{'rmse-random-split-sample' if use_sampling else 'rmse-random-split'}"
+    summary_path = f"s3://amazon-reviews-eafit/{'rmse-random-split-sample' if use_sampling else 'rmse-random-split'}"
 
     (
         summary.coalesce(1)  # Save as a single CSV file

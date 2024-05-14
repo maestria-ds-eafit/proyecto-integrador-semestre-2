@@ -36,8 +36,9 @@ def run_emr_job(s3_key):
     spark_driver_memory = os.getenv("SPARK_DRIVER_MEMORY", default="4g")
     spark_executor_instances = os.getenv("SPARK_EXECUTOR_INSTANCES", default="1")
     spark_kryoserializer_buffer_max = os.getenv(
-        "SPARK_KRYOSERIALIZER_BUFFER_MAX", default="512m"
+        "SPARK_KRYOSERIALIZER_BUFFER_MAX", default="1073741824"
     )
+    spark_rpc_message_max_size = os.getenv("SPARK_RPC_MESSAGE_MAXSIZE", default="512m")
     use_sampling = os.getenv("USE_SAMPLING", default=False) == "1"
     use_sampling_string = '"--use-sampling", "1"' if use_sampling else ""
 
@@ -49,6 +50,7 @@ def run_emr_job(s3_key):
         "], "
         '"sparkSubmitParameters": "'
         f"--conf spark.kryoserializer.buffer.max={spark_kryoserializer_buffer_max} "
+        f"--conf spark.rpc.message.maxSize={spark_rpc_message_max_size} "
         f"--conf spark.driver.memory={spark_driver_memory} "
         f"--conf spark.driver.cores={spark_driver_cores} "
         f"--conf spark.executor.instances={spark_executor_instances} "

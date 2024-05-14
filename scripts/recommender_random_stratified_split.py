@@ -82,12 +82,12 @@ def save_string_indexer_inverter(string_indexer_model):
     )
 
     inverter.write().overwrite().save(
-        f"s3a://amazon-reviews-eafit/{'inverter-random-stratified-split-sample' if use_sampling else 'inverter-random-stratified-split'}"
+        f"s3://amazon-reviews-eafit/{'inverter-random-stratified-split-sample' if use_sampling else 'inverter-random-stratified-split'}"
     )
 
 
 if __name__ == "__main__":
-    data_path = f"s3a://amazon-reviews-eafit/{'sample-for-model' if use_sampling else 'refined'}/"
+    data_path = f"s3://amazon-reviews-eafit/{'sample-for-model' if use_sampling else 'refined'}/"
     data = spark.read.parquet(data_path)
 
     string_indexer_model = get_string_indexer(data)
@@ -144,7 +144,7 @@ if __name__ == "__main__":
         ]
     )
 
-    summary_path = f"s3a://amazon-reviews-eafit/{'rmse-random-stratified-split-sample' if use_sampling else 'rmse-random-stratified-split'}"
+    summary_path = f"s3://amazon-reviews-eafit/{'rmse-random-stratified-split-sample' if use_sampling else 'rmse-random-stratified-split'}"
 
     (
         summary.coalesce(1)  # Save as a single CSV file
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     )
 
     # Save the model to S3
-    model_path = f"s3a://amazon-reviews-eafit/{'model-random-stratified-split-sample' if use_sampling else 'model-random-stratified-split'}"
+    model_path = f"s3://amazon-reviews-eafit/{'model-random-stratified-split-sample' if use_sampling else 'model-random-stratified-split'}"
     model.write().overwrite().save(model_path)
 
     # Stop SparkSession

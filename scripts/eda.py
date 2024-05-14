@@ -59,21 +59,21 @@ if __name__ == "__main__":
         summary_statistics.coalesce(1)  # Save as a single CSV file
         .write.mode("overwrite")
         .option("header", "true")
-        .csv("s3a://amazon-reviews-eafit/eda/summary_statistics")
+        .csv("s3://amazon-reviews-eafit/eda/summary_statistics")
     )
 
     (
         avg_rating_per_category.coalesce(1)  # Save as a single CSV file
         .write.mode("overwrite")
         .option("header", "true")
-        .csv("s3a://amazon-reviews-eafit/eda/avg_rating_per_category")
+        .csv("s3://amazon-reviews-eafit/eda/avg_rating_per_category")
     )
 
     (
         records_per_category.coalesce(1)  # Save as a single CSV file
         .write.mode("overwrite")
         .option("header", "true")
-        .csv("s3a://amazon-reviews-eafit/eda/records_per_category")
+        .csv("s3://amazon-reviews-eafit/eda/records_per_category")
     )
 
     # Stop SparkSession

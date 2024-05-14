@@ -14,7 +14,7 @@ spark = (
 
 if __name__ == "__main__":
     data = spark.read.csv(
-        "s3a://amazon-reviews-eafit/data/*.tsv", sep=r"\t", header=True
+        "s3://amazon-reviews-eafit/data/*.tsv", sep=r"\t", header=True
     )
 
     # Count how many records we have and save it to a variable
@@ -80,11 +80,11 @@ if __name__ == "__main__":
 
     (
         counts_df.coalesce(1).write.csv(  # Save as a single CSV file
-            "s3a://amazon-reviews-eafit/eda/counts", mode="overwrite", header=True
+            "s3://amazon-reviews-eafit/eda/counts", mode="overwrite", header=True
         )
     )
 
-    cleaned_data.write.parquet("s3a://amazon-reviews-eafit/refined", mode="overwrite")
+    cleaned_data.write.parquet("s3://amazon-reviews-eafit/refined", mode="overwrite")
 
     # Stop SparkSession
     spark.stop()

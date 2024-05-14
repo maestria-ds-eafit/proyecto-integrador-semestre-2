@@ -13,7 +13,7 @@ spark = (
 )
 
 if __name__ == "__main__":
-    data = spark.read.parquet("s3a://amazon-reviews-eafit/refined/")
+    data = spark.read.parquet("s3://amazon-reviews-eafit/refined/")
 
     distinct_customer_ids = data.select("customer_id").distinct()
 
@@ -24,6 +24,6 @@ if __name__ == "__main__":
 
     data = data.filter(col("customer_id").isin(list_of_sampled_ids))
 
-    data.write.parquet("s3a://amazon-reviews-eafit/sample-for-model", mode="overwrite")
+    data.write.parquet("s3://amazon-reviews-eafit/sample-for-model", mode="overwrite")
 
     spark.stop()

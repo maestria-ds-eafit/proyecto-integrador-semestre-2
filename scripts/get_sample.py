@@ -54,7 +54,7 @@ weights = {
 
 if __name__ == "__main__":
     data = spark.read.csv(
-        "s3a://amazon-reviews-eafit/data/*.tsv", sep=r"\t", header=True
+        "s3://amazon-reviews-eafit/data/*.tsv", sep=r"\t", header=True
     )
 
     data = data.dropna()
@@ -70,6 +70,6 @@ if __name__ == "__main__":
         .otherwise("positive"),
     )
 
-    sampled_data.write.parquet("s3a://amazon-reviews-eafit/sample", mode="overwrite")
+    sampled_data.write.parquet("s3://amazon-reviews-eafit/sample", mode="overwrite")
 
     spark.stop()
