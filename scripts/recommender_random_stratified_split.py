@@ -133,5 +133,9 @@ if __name__ == "__main__":
         .csv(summary_path)
     )
 
+    # Save the model to S3
+    model_path = f"s3a://amazon-reviews-eafit/{'model-random-stratified-split-sample' if use_sampling else 'model-random-stratified-split'}"
+    model.write().overwrite().save(model_path)
+
     # Stop SparkSession
     spark.stop()

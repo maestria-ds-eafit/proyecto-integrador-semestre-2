@@ -39,18 +39,19 @@ def run_emr_job(s3_key):
         "SPARK_KRYOSERIALIZER_BUFFER_MAX", default="512m"
     )
     use_sampling = os.getenv("USE_SAMPLING", default=False) == "1"
+    use_sampling_string = '"--use-sampling", "1"' if use_sampling else ""
 
     job_driver = (
         f'\'{{"sparkSubmit": {{"entryPoint": '
         f'"s3://{bucket_name}/{file_path}", '
         f'"entryPointArguments": ['
-        f'{"--use-sampling" if use_sampling else ""}'
+        f"{use_sampling_string}"
         "], "
         '"sparkSubmitParameters": "'
         f"--conf spark.kryoserializer.buffer.max={spark_kryoserializer_buffer_max} "
-        f"--conf spark.executor.instances={spark_executor_instances} "
         f"--conf spark.driver.memory={spark_driver_memory} "
         f"--conf spark.driver.cores={spark_driver_cores} "
+        f"--conf spark.executor.instances={spark_executor_instances} "
         f"--conf spark.executor.memory={spark_executor_memory} "
         f"--conf spark.executor.cores={spark_executor_cores}\"}}}}'"
     )
@@ -70,6 +71,7 @@ def run_emr_job(s3_key):
     ]
     try:
         string_command = " ".join(command)
+        print(string_command)
         os.system(string_command)
         print("EMR job started successfully.")
     except Exception as e:
