@@ -11,19 +11,10 @@ load_dotenv()
 
 spark = SparkSession.builder.appName("Recommendations App").getOrCreate()  # type: ignore
 bucket_name = os.getenv("BUCKET_NAME")
-use_sampling = os.getenv("USE_SAMPLING", default=True) == "1"
-model = ALSModel.load(
-    "model-random-stratified-split-sample"
-    if use_sampling
-    else "model-random-stratified-split"
-)
-inverter = IndexToString.load(
-    "inverter-random-stratified-split-sample"
-    if use_sampling
-    else "inverter-random-stratified-split"
-)
+model = ALSModel.load("model-random-stratified-split-sample")
+inverter = IndexToString.load("inverter-random-stratified-split-sample")
 
-df = wr.s3.read_parquet(path="s3://amazon-reviews-eafit/sample-for-model/")
+data = wr.s3.read_parquet(path="s3://amazon-reviews-eafit/sample-for-model/")
 
 
 def main():
@@ -43,6 +34,12 @@ def main():
                     recommendations = model.recommendForUserSubset(
                         df, numItems=int(num_recommendations)
                     )
+                    products_bought = data[data["customer_id"] == customer_id][
+                        ["product_id", "product_title", "product_category"]
+                    ]
+                    st.write("Productos comprados por el usuario:")
+                    st.dataframe(products_bought)
+
                     if recommendations.count() == 0:
                         st.warning(
                             "No se encontraron recomendaciones para este usuario."
@@ -60,11 +57,19 @@ def main():
                         predictions_df.rename(
                             columns={"original_item_id": "product_id"}, inplace=True
                         )
-                        predictions_df.drop("item_id", axis=1, inplace=True)
-                        # Puts item_id as the first column
-                        cols = list(predictions_df.columns)
-                        cols = [cols[-1]] + cols[:-1]
-                        predictions_df = predictions_df[cols]
+                        product_ids = predictions_df["product_id"].tolist()
+                        products_df = data[data["product_id"].isin(product_ids)]
+                        predictions_df = predictions_df.merge(
+                            products_df[
+                                ["product_id", "product_title", "product_category"]
+                            ],
+                            on="product_id",
+                        )
+                        # predictions_df.drop("item_id", axis=1, inplace=True)
+                        # # Puts item_id as the first column
+                        # cols = list(predictions_df.columns)
+                        # cols = [cols[-1]] + cols[:-1]
+                        # predictions_df = predictions_df[cols]
                         st.dataframe(predictions_df)
                 except ValueError:
                     st.error("Por favor introduce un ID válido.")
