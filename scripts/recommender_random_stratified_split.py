@@ -101,8 +101,8 @@ if __name__ == "__main__":
 
     # Build the recommendation model using ALS on the training data
     als = ALS(
-        maxIter=5,
-        regParam=0.001,
+        maxIter=15,
+        regParam=0.1,
         userCol="customer_id",
         itemCol="item_id",
         ratingCol="star_rating",
