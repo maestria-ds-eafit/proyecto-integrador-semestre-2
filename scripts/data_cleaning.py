@@ -80,9 +80,7 @@ if __name__ == "__main__":
         ]
     )
 
-    counts_df.write.csv(
-        "s3://amazon-reviews-eafit/eda/counts", mode="overwrite", header=True
-    )
+    counts_df.write.parquet("s3://amazon-reviews-eafit/eda/counts", mode="overwrite")
 
     cleaned_data.write.parquet("s3://amazon-reviews-eafit/refined", mode="overwrite")
 

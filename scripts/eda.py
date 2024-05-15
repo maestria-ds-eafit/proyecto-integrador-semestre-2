@@ -13,7 +13,7 @@ spark = (
 )
 
 if __name__ == "__main__":
-    verified_data = spark.read.parquet("s3a://amazon-reviews-eafit/refined/")
+    verified_data = spark.read.parquet("s3://amazon-reviews-eafit/refined/")
 
     verified_records = verified_data.count()
 
@@ -56,21 +56,21 @@ if __name__ == "__main__":
     )
 
     (
-        summary_statistics.write.mode("overwrite")
-        .option("header", "true")
-        .csv("s3://amazon-reviews-eafit/eda/summary_statistics")
+        summary_statistics.write.mode("overwrite").parquet(
+            "s3://amazon-reviews-eafit/eda/summary_statistics"
+        )
     )
 
     (
-        avg_rating_per_category.write.mode("overwrite")
-        .option("header", "true")
-        .csv("s3://amazon-reviews-eafit/eda/avg_rating_per_category")
+        avg_rating_per_category.write.mode("overwrite").parquet(
+            "s3://amazon-reviews-eafit/eda/avg_rating_per_category"
+        )
     )
 
     (
-        records_per_category.write.mode("overwrite")
-        .option("header", "true")
-        .csv("s3://amazon-reviews-eafit/eda/records_per_category")
+        records_per_category.write.mode("overwrite").parquet(
+            "s3://amazon-reviews-eafit/eda/records_per_category"
+        )
     )
 
     # Stop SparkSession
