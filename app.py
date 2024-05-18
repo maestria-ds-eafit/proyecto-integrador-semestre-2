@@ -14,7 +14,8 @@ bucket_name = os.getenv("BUCKET_NAME")
 model = ALSModel.load("model-random-stratified-split-sample")
 inverter = IndexToString.load("inverter-random-stratified-split-sample")
 
-data = wr.s3.read_parquet(path="s3://amazon-reviews-eafit/sample-for-model/")
+data_training = wr.s3.read_parquet(path="s3://amazon-reviews-eafit/sample-training/")
+data_test = wr.s3.read_parquet(path="s3://amazon-reviews-eafit/sample-test/")
 
 
 def main():
@@ -28,11 +29,16 @@ def main():
     if st.button("Obtener recomendaciones"):
         if id_input:
             customer_id = int(id_input)
-            products_bought = data[data["customer_id"] == customer_id][
+            products_bought_training = data_training[
+                data_training["customer_id"] == customer_id
+            ][["product_id", "product_title", "product_category"]]
+            products_bought_test = data_test[data_test["customer_id"] == customer_id][
                 ["product_id", "product_title", "product_category"]
             ]
-            st.write("Productos comprados por el usuario:")
-            st.dataframe(products_bought, hide_index=True)
+            st.write("Productos comprados por el usuario (en el training set):")
+            st.dataframe(products_bought_training, hide_index=True)
+            st.write("Productos comprados por el usuario (en el test set):")
+            st.dataframe(products_bought_test, hide_index=True)
             with st.spinner("Por favor espere..."):
                 try:
                     df = spark.createDataFrame([(customer_id,)], ["customer_id"])
@@ -58,7 +64,9 @@ def main():
                             columns={"original_item_id": "product_id"}, inplace=True
                         )
                         product_ids = predictions_df["product_id"].tolist()
-                        products_df = data[data["product_id"].isin(product_ids)]
+                        products_df = data_training[
+                            data_training["product_id"].isin(product_ids)
+                        ]
                         predictions_df = predictions_df.merge(
                             products_df[
                                 ["product_id", "product_title", "product_category"]

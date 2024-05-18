@@ -96,8 +96,12 @@ if __name__ == "__main__":
     data = string_indexer_model.transform(data)
 
     training, test = split_data(data, percent_items_to_mask=0.3)
-    # Descomentar cuando sepamos cómo hacer el validation con toda la data
-    # training, validation = split_data(training)
+
+    if use_sampling:
+        training.write.mode("overwrite").parquet(
+            f"s3://amazon-reviews-eafit/sample-training"
+        )
+        test.write.mode("overwrite").parquet(f"s3://amazon-reviews-eafit/sample-test")
 
     # Build the recommendation model using ALS on the training data
     als = ALS(
@@ -115,26 +119,12 @@ if __name__ == "__main__":
     # Evaluate the model by computing the RMSE on the test data
     rmse_test, mae_test, predictions_test_count = get_metrics(model, test)
 
-    # Descomentar cuando sepamos cómo hacer la validación en toda la data
-    # rmse_validation, mae_validation, predictions_validation_count = get_metrics(model, validation)
-
-    # print(f"Predictions count (validation): {predictions_validation_count}")
-    # print(f"RMSE (validation) = {rmse_validation}")
-    # print(f"MAE (validation) = {mae_validation}")
-
     print(f"Predictions count (test): {predictions_test_count}")
     print(f"RMSE (test) = {rmse_test}")
     print(f"MAE (test) = {mae_test}")
 
     summary = spark.createDataFrame(
         [
-            # Descomentar cuando sepamos cómo hacer la validación en toda la data
-            # Row(
-            #     metric="Predictions count (validation)",
-            #     value=float(predictions_validation_count),
-            # ),
-            # Row(metric="RMSE (validation)", value=float(rmse_validation)),
-            # Row(metric="MAE (validation)", value=float(mae_validation)),
             Row(
                 metric="Predictions count (test)",
                 value=float(predictions_test_count),
