@@ -39,12 +39,12 @@ if __name__ == "__main__":
     # Count how many records we have after doing this filter and save it to a variable
     data_without_nulls_count = data_without_nulls.count()
 
-    # 7. Filter customers where "verified_purchase" is True
+    # Filter customers where "verified_purchase" is True
     verified_data = data_without_nulls.filter(
         data_without_nulls.verified_purchase == True
     )
 
-    # 8. Count how many records we have after doing this filter and save it to a variable
+    # Count how many records we have after doing this filter and save it to a variable
     verified_data_count = verified_data.count()
 
     # Keep only those customers that appear at least 3 times
@@ -74,7 +74,7 @@ if __name__ == "__main__":
             Row(metric="Filtered Records (No Nulls)", value=data_without_nulls_count),
             Row(metric="Verified Records", value=verified_data_count),
             Row(
-                metric="Customers with more than three reviews count",
+                metric="Customers with three or more reviews count",
                 value=cleaned_data_count,
             ),
         ]
