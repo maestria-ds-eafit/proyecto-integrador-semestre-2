@@ -31,9 +31,9 @@ def main():
             customer_id = int(id_input)
             products_bought_training = data_training[
                 data_training["customer_id"] == customer_id
-            ][["product_id", "product_title", "product_category"]]
+            ][["product_id", "product_title", "product_category", "star_rating"]]
             products_bought_test = data_test[data_test["customer_id"] == customer_id][
-                ["product_id", "product_title", "product_category"]
+                ["product_id", "product_title", "product_category", "star_rating"]
             ]
             st.write("Productos comprados por el usuario (en el training set):")
             st.dataframe(products_bought_training, hide_index=True)
