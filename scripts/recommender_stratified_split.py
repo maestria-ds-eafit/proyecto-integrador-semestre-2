@@ -58,7 +58,9 @@ def split_data(data):
 
 
 if __name__ == "__main__":
-    data_path = f"s3://amazon-reviews-eafit/{'sample-for-model' if use_sampling else 'refined'}/"
+    data_path = (
+        f"s3://amazon-reviews-eafit/{'sample-for-demo' if use_sampling else 'refined'}/"
+    )
     data = spark.read.parquet(data_path)
 
     indexer = StringIndexer(inputCol="product_id", outputCol="item_id")

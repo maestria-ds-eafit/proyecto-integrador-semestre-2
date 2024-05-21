@@ -1,27 +1,14 @@
-import argparse
+import itertools
 
 from pyspark.ml.evaluation import RegressionEvaluator
-from pyspark.ml.feature import IndexToString, StringIndexer
+from pyspark.ml.feature import StringIndexer
 from pyspark.ml.recommendation import ALS
 from pyspark.sql import Row, SparkSession
 from pyspark.sql.functions import col, expr, rank
 from pyspark.sql.window import Window
 
-parser = argparse.ArgumentParser()
-
-parser.add_argument(
-    "--use-sampling",
-    type=bool,
-    help="Use sampling for running the model",
-    default=False,
-)
-
-# Capture args
-args = parser.parse_args()
-use_sampling = args.use_sampling
-
 spark = (
-    SparkSession.builder.appName("Collaborative Filtering with random stratified split")  # type: ignore
+    SparkSession.builder.appName("Hyperparameter tuning")  # type: ignore
     .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.3.4")
     .config("fs.s3a.endpoint", "s3.us-east-2.amazonaws.com")
     .config(
@@ -64,6 +51,9 @@ def get_metrics(model, dataset):
     rmse = evaluator_rmse.evaluate(predictions)
     mae = evaluator_mae.evaluate(predictions)
     predictions_count = predictions.count()
+    print("Predictions count: ", predictions_count)
+    print("RMSE: ", rmse)
+    print("MAE: ", mae)
     return rmse, mae, predictions_count
 
 
@@ -74,70 +64,85 @@ def get_string_indexer(data):
     return string_indexer_model
 
 
-def save_string_indexer_inverter(string_indexer_model):
-    inverter = IndexToString(
-        inputCol="item_id",
-        outputCol="original_item_id",
-        labels=string_indexer_model.labels,
-    )
-
-    inverter.write().overwrite().save(
-        f"s3://amazon-reviews-eafit/{'inverter-random-stratified-split-sample' if use_sampling else 'inverter-random-stratified-split'}"
-    )
-
-
-if __name__ == "__main__":
-    data_path = (
-        f"s3://amazon-reviews-eafit/{'sample-for-demo' if use_sampling else 'refined'}/"
-    )
-    data = spark.read.parquet(data_path)
-
-    string_indexer_model = get_string_indexer(data)
-    save_string_indexer_inverter(string_indexer_model)
-
-    data = string_indexer_model.transform(data)
-
-    training, test = split_data(data, percent_items_to_mask=0.3)
-
-    if use_sampling:
-        training.write.mode("overwrite").parquet(
-            f"s3://amazon-reviews-eafit/sample-training"
-        )
-        test.write.mode("overwrite").parquet(f"s3://amazon-reviews-eafit/sample-test")
-
-    # Build the recommendation model using ALS on the training data
+def train_model(maxIter=5, regParam=0.1, rank=10):
     als = ALS(
-        maxIter=5,
-        regParam=0.001,
-        rank=10,
+        maxIter=maxIter,
+        regParam=regParam,
         userCol="customer_id",
         itemCol="item_id",
         ratingCol="star_rating",
         seed=42,
         nonnegative=True,
+        rank=rank,
         coldStartStrategy="drop",
     )
     model = als.fit(training)
+    return model
 
-    # Evaluate the model by computing the RMSE on the test data
-    rmse_test, mae_test, predictions_test_count = get_metrics(model, test)
 
-    print(f"Predictions count (test): {predictions_test_count}")
-    print(f"RMSE (test) = {rmse_test}")
-    print(f"MAE (test) = {mae_test}")
+if __name__ == "__main__":
+    data_path = f"s3://amazon-reviews-eafit/sample-for-model"
+    data = spark.read.parquet(data_path)
+
+    string_indexer_model = get_string_indexer(data)
+
+    data = string_indexer_model.transform(data)
+
+    training, test = split_data(data, percent_items_to_mask=0.3)
+    training, validation = split_data(training, percent_items_to_mask=0.3)
+
+    # parameters = {
+    #     "maxIter": [5, 10, 15],
+    #     "regParam": [0.001, 0.01, 0.1],
+    #     "rank": [1, 5, 10, 15, 20],
+    # }
+    parameters = {
+        "maxIter": [5, 10, 15],
+        "regParam": [0.1, 0.01, 0.001],
+        "rank": [5, 10, 15],
+    }
+
+    param_combinations = list(itertools.product(*parameters.values()))
+    tuning_parameters = [
+        {"maxIter": maxIter, "regParam": regParam, "rank": rank}
+        for maxIter, regParam, rank in param_combinations
+    ]
+
+    corresponding_rmse, best_mae, best_predictions_count, best_parameters = (
+        float("inf"),
+        float("inf"),
+        0,
+        None,
+    )
+
+    for parameters_combination in tuning_parameters:
+        print(f"Parameters: {parameters_combination}")
+        model = train_model(**parameters_combination)
+        rmse, mae, predictions_count = get_metrics(model, validation)
+        print("-----------------------------------------")
+        if mae < best_mae:
+            best_mae = mae
+            corresponding_rmse = rmse
+            best_parameters = parameters_combination
+            best_predictions_count = predictions_count
+
+    print(f"Best parameters: {best_parameters}")
+    print(f"Best MAE: {mae}")
+    print(f"RMSE corresponding to the best MAE: {corresponding_rmse}")
 
     summary = spark.createDataFrame(
         [
             Row(
-                metric="Predictions count (test)",
-                value=float(predictions_test_count),
+                metric="Predictions count (validation)",
+                value=float(best_predictions_count),
             ),
-            Row(metric="RMSE (test)", value=float(rmse_test)),
-            Row(metric="MAE (test)", value=float(mae_test)),
+            Row(metric="RMSE (validation)", value=float(corresponding_rmse)),
+            Row(metric="MAE (validation)", value=float(best_mae)),
+            Row(metric="Best parameters", value=str(best_parameters)),
         ]
     )
 
-    summary_path = f"s3://amazon-reviews-eafit/{'rmse-random-stratified-split-sample' if use_sampling else 'rmse-random-stratified-split'}"
+    summary_path = f"s3://amazon-reviews-eafit/hyperparameter-tuning"
 
     (
         summary.coalesce(1)  # Save as a single CSV file
@@ -145,11 +150,6 @@ if __name__ == "__main__":
         .option("header", "true")
         .csv(summary_path)
     )
-
-    # Save the model to S3
-    if use_sampling:
-        model_path = f"s3://amazon-reviews-eafit/model-random-stratified-split-sample"
-        model.write().overwrite().save(model_path)
 
     # Stop SparkSession
     spark.stop()
