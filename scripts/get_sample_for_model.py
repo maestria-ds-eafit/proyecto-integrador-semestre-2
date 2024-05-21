@@ -18,7 +18,6 @@ if __name__ == "__main__":
     distinct_customer_ids = data.select("customer_id").distinct()
 
     sampled_customer_ids = distinct_customer_ids.sample(False, 0.1)
-    sampled_customer_ids = sampled_customer_ids.limit(500)
 
     list_of_sampled_ids = [row["customer_id"] for row in sampled_customer_ids.collect()]
 

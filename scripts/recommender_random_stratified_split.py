@@ -105,8 +105,9 @@ if __name__ == "__main__":
 
     # Build the recommendation model using ALS on the training data
     als = ALS(
-        maxIter=15,
-        regParam=0.1,
+        maxIter=5,
+        regParam=0.001,
+        rank=10,
         userCol="customer_id",
         itemCol="item_id",
         ratingCol="star_rating",
@@ -144,8 +145,9 @@ if __name__ == "__main__":
     )
 
     # Save the model to S3
-    model_path = f"s3://amazon-reviews-eafit/{'model-random-stratified-split-sample' if use_sampling else 'model-random-stratified-split'}"
-    model.write().overwrite().save(model_path)
+    if use_sampling:
+        model_path = f"s3://amazon-reviews-eafit/model-random-stratified-split-sample"
+        model.write().overwrite().save(model_path)
 
     # Stop SparkSession
     spark.stop()
