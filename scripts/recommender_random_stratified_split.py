@@ -75,6 +75,9 @@ def get_string_indexer(data):
 
 
 def save_string_indexer_inverter(string_indexer_model):
+    if not use_sampling:
+        return
+
     inverter = IndexToString(
         inputCol="item_id",
         outputCol="original_item_id",
