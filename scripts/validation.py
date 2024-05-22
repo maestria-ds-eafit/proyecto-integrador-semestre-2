@@ -127,7 +127,7 @@ if __name__ == "__main__":
             best_predictions_count = predictions_count
 
     print(f"Best parameters: {best_parameters}")
-    print(f"Best MAE: {mae}")
+    print(f"Best MAE: {best_mae}")
     print(f"RMSE corresponding to the best MAE: {corresponding_rmse}")
 
     summary = spark.createDataFrame(
