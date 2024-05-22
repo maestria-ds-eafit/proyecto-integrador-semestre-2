@@ -2,13 +2,36 @@
 
 Proyecto integrador para el segundo semestre de la maestría de ciencia de datos y analítica de EAFIT.
 
+## Prerrequisitos
+
+* Tener `pdm` instalado (Python Dependency Manager): <https://pdm-project.org/en/latest/>
+
+* Tener una cuenta de AWS y al `aws cli` instalado: <https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html>
+
+## Estructura del proyecto
+
+* El proyecto utiliza **PDM (Python Dependency Manager)** para el manejo de dependencias. Esto implica la existencia de un archivo **pyproject.toml** y **pdm.lock**. Cualquier versión de Python 3.11 sirve para este proyecto.
+* En el root del proyecto estos son los archivos importantes:
+  * `.env.template`: Este archivo debe ser copiado a un archivo .env (que está en el .gitignore) para que los programas lean estas variables de entorno
+  * `main.py`: archivo utilitario utilizado para mandar Jobs a AWS EMR.
+  * `app.py`: archivo para correr el demo de Streamlit
+* En la carpeta *scripts* se puede encontrar los siguientes archivos:
+  * `data_cleaning.py`: script para la limpieza de la data y para reporte de conteos por cada paso de limpieza
+  * `eda.py`: script para sacar agregados de la data refinada
+  * get_reviews_count_distribution.py: script para calcular la distribución de reviews. Es decir, cuántos usuarios dieron “x” cantidad de reviews.
+  * `get_sample_for_demo.py`: script para obtener un sampleo de la data para la demo con Streamlit
+  * `get_sample_for_model.py`: script para obtener un sampleo de la data para el grid search
+  * `recommender_random_split.py`: script para la implementación de un sistema de recomendación utilizando el split de data randomizado.
+  * `recommender_random_stratified.py`: script para el sistema de recomendación utilizando el split de data estratificado y randomizado.
+  * `recommender_stratified_split.py`: script para el sistema de recomendación usando el split estratificado.
+  * `total_rows_per_category.py`: script para sacar el total de registros por categoría
+  * `validation.py`: script para hacer grid search con un porcentaje de la data
+
 ## Configuración para usar AWS EMR
 
 * Instalar las dependencias de Python: `pdm install`
 
-* Instalar el AWS CLI: <https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html>
-
-* Primero configurar el CLI de AWS.
+* Configurar el CLI de AWS.
 
 ```terminal
 aws configure
@@ -61,7 +84,6 @@ python main.py scripts/<nombre_del_script>.py
 
 Para ejecutar un script local:
 
-* `pipenv shell`
 * `spark-submit <script_name>.py`
 
 Se recomienda que se ejecute solo con un sample de los datos, para no sobrecargar el sistema.
