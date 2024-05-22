@@ -112,7 +112,7 @@ if __name__ == "__main__":
     als = ALS(
         maxIter=15,
         regParam=0.1,
-        rank=5,
+        rank=15,
         userCol="customer_id",
         itemCol="item_id",
         ratingCol="star_rating",
