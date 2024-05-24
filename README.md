@@ -18,14 +18,20 @@ Proyecto integrador para el segundo semestre de la maestría de ciencia de datos
 * En la carpeta *scripts* se puede encontrar los siguientes archivos:
   * `data_cleaning.py`: script para la limpieza de la data y para reporte de conteos por cada paso de limpieza
   * `eda.py`: script para sacar agregados de la data refinada
-  * get_reviews_count_distribution.py: script para calcular la distribución de reviews. Es decir, cuántos usuarios dieron “x” cantidad de reviews.
+  * `get_reviews_count_distribution.py`: script para calcular la distribución de reviews. Es decir, cuántos usuarios dieron “x” cantidad de reviews.
   * `get_sample_for_demo.py`: script para obtener un sampleo de la data para la demo con Streamlit
   * `get_sample_for_model.py`: script para obtener un sampleo de la data para el grid search
+  * `get_sample.py`: script para obtener un sampleo de la data pero con todas las columnas
+  * `get_time_series_data.py`: script para obtener la data de series de tiempo
   * `recommender_random_split.py`: script para la implementación de un sistema de recomendación utilizando el split de data randomizado.
   * `recommender_random_stratified.py`: script para el sistema de recomendación utilizando el split de data estratificado y randomizado.
   * `recommender_stratified_split.py`: script para el sistema de recomendación usando el split estratificado.
   * `total_rows_per_category.py`: script para sacar el total de registros por categoría
   * `validation.py`: script para hacer grid search con un porcentaje de la data
+* En la carpeta *notebooks* tenemos los siguientes archivos:
+  * `eda.ipynb`: para hacer un EDA simple sobre la data arrojada por `eda.py`.
+  * `time_series_analysis.ipynb`: notebook para hacer análisis de series de tiempo con la data arrojada por `get_time_series_data.py`.
+  * `upload_files.ipynb`: notebook para subir la data a S3.
 
 ## Configuración para usar AWS EMR
 
