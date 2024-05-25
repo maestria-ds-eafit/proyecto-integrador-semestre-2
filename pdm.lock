@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:179e3647849463a872b1802144b6b923e73f473ad8a345a3e8b72728e725bc5a"
+content_hash = "sha256:c8af622377d5dd377882501fa4044cc0315e622fc1ef4d7daaaded68e9ccc769"
 
 [[package]]
 name = "accelerate"
@@ -1377,6 +1377,22 @@ groups = ["default"]
 files = [
     {file = "mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8"},
     {file = "mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba"},
+]
+
+[[package]]
+name = "missingno"
+version = "0.5.2"
+summary = "Missing data visualization module for Python."
+groups = ["default"]
+dependencies = [
+    "matplotlib",
+    "numpy",
+    "scipy",
+    "seaborn",
+]
+files = [
+    {file = "missingno-0.5.2-py3-none-any.whl", hash = "sha256:55782621ce09ba0f0a1d08e5bd6d6fe1946469fb03951fadf7d209911ca5b072"},
+    {file = "missingno-0.5.2.tar.gz", hash = "sha256:4a4baa9ca9f9e4e0d9402455df26b656632e94b99e87fa64c0cdbbbc722837ac"},
 ]
 
 [[package]]
