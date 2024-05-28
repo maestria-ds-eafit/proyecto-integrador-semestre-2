@@ -26,6 +26,8 @@ dependencies = [
     "missingno>=0.5.2",
     "skforecast>=0.12.1",
     "pmdarima>=2.0.4",
+    "git+https://github.com/amazon-science/chronos-forecasting.git",
+    "chronos @ git+https://github.com/amazon-science/chronos-forecasting.git",
 ]
 requires-python = "==3.11.*"
 readme = "README.md"
