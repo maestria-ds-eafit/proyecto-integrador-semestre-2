@@ -4,6 +4,7 @@ from statsmodels.tsa.stattools import adfuller, kpss
 import plotly.express as px
 import pandas as pd
 import skforecast
+import plotly.graph_objects as go
 
 
 def plot_acf_pacf(df, variable, lags=40):
@@ -35,45 +36,54 @@ def add_stl_plot(fig, res, legend):
                 ax.legend(legend, frameon=False)
 
 
-def plot_time_series(df_positive, df_negative, df_neutral, column):
-    """
-    Crea y muestra una gráfica de líneas con tres series temporales: Positive, Negative y Neutral.
+def plot_time_series(df_positive, df_negative, df_neutral):
+    fig = go.Figure()
 
-    Parámetros:
-    df_positive (DataFrame): DataFrame con los datos de la serie temporal 'Positive'.
-    df_negative (DataFrame): DataFrame con los datos de la serie temporal 'Negative'.
-    df_neutral (DataFrame): DataFrame con los datos de la serie temporal 'Neutral'.
-    """
-    # Crear la figura inicial con la primera serie temporal
-    fig_line = px.line(title="Review count time series")
-    fig_line.add_scatter(
-        x=df_positive.index,
-        y=df_positive[column],
-        mode="lines",
-        name="Positive",
-        line=dict(color="green"),
+    # Add historical data line
+    fig.add_trace(
+        go.Scatter(
+            x=df_positive.index,
+            y=df_positive["positive_count"],
+            mode="lines",
+            name="positive",
+            line=dict(color="green"),
+        )
     )
 
-    # Agregar la segunda serie temporal
-    fig_line.add_scatter(
-        x=df_negative.index,
-        y=df_negative[column],
-        mode="lines",
-        name="Negative",
-        line=dict(color="darkorange"),
+    # Add validation data line
+    fig.add_trace(
+        go.Scatter(
+            x=df_negative.index,
+            y=df_negative["negative_count"],
+            mode="lines",
+            name="negative",
+            line=dict(color="tomato"),
+        )
     )
 
-    # Agregar la tercera serie temporal
-    fig_line.add_scatter(
-        x=df_neutral.index,
-        y=df_neutral[column],
-        mode="lines",
-        name="Neutral",
-        line=dict(color="silver"),
+    # Add median forecast line
+    fig.add_trace(
+        go.Scatter(
+            x=df_neutral.index,
+            y=df_neutral["neutral_count"],
+            mode="lines",
+            name="neutral",
+            line=dict(color="silver"),
+        )
     )
 
-    # Mostrar el gráfico
-    fig_line.show()
+    fig.update_layout(
+        title="Count of reviews",
+        xaxis_title="Date",
+        yaxis_title="Counts",
+        legend_title="Legend",
+        template="plotly_white",
+        width=800,
+        height=400,
+    )
+
+    # Show the figure
+    fig.show()
 
 
 def split_data_into_train_test(data, test_size=30) -> tuple[pd.Series, pd.Series]:

@@ -1,9 +1,12 @@
 from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error
 from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.tsa.statespace.sarimax import SARIMAX
 from math import sqrt
 import numpy as np
 from concurrent.futures import ProcessPoolExecutor
 import logging
+import plotly.express as px
+import pandas as pd
 
 
 def naive_model(train_df, test_df, column_name="FP_mean"):
@@ -186,3 +189,79 @@ def find_best_arima_order_parallel(
         print(f"Final Best ARIMA: {best_order} --- Best RMSE: {round(best_score, 2)}")
 
     return best_order, best_score
+
+
+def sarima_rolling_training_rolling_prediction(
+    train_df, test_df, arima_order, seasonal_order, column="FP_mean", exog=None
+):
+    """
+    Evaluates an ARIMA model with a specified order on the given training and testing datasets.
+
+    Parameters:
+    - train_df: DataFrame containing the training data.
+    - test_df: DataFrame containing the test data.
+    - arima_order: A tuple (p, d, q) specifying the order of the ARIMA model.
+    - column: The name of the column to predict. Defaults to "FP_mean".
+
+    Returns:
+    - mape: Mean Absolute Percentage Error of the predictions.
+    - rmse: Root Mean Squared Error of the predictions.
+    - predictions: A list of predicted values.
+    """
+    # Log transform the historical data for stability
+    history = list(train_df[column])
+    predictions = []
+
+    # Predict and update model for each point in test set
+    for i in range(len(test_df)):
+        # Predict
+        model = SARIMAX(
+            history, order=arima_order, seasonal_order=seasonal_order, exog=exog
+        )
+        model_fit = model.fit()
+        yhat = model_fit.forecast()[0]
+        predictions.append(yhat)
+        # Observation
+        obs = test_df.iloc[i][column]
+        history.append(obs)
+
+    # Reverse log transform and calculate performance metrics
+    values = test_df[column].values
+    mape = mean_absolute_percentage_error(values, predictions)
+    rmse = sqrt(mean_squared_error(values, predictions))
+
+    # Reporting performance
+    print(f"ARIMA Order: {arima_order}")
+    print(f"Seasonal Order: {seasonal_order}")
+    print(f"RMSE: {rmse}")
+    print(f"MAPE: {round(mape*100, 2)}%")
+
+    return mape, rmse, [predictions, values]
+
+
+def plot_arima(
+    test_df,
+    values_arima_rolling,
+    predictions_arima_rolling,
+    title="Comparación de los valores reales con las predicciones del modelo ARIMA usando ROLLING TRAINING - ROLLING PREDICTIONS",
+):
+    # Crear un DataFrame para el plot
+    df_plot = pd.DataFrame(
+        {
+            "Fecha": test_df.index,
+            "Valor Real": values_arima_rolling,
+            "Predicción": predictions_arima_rolling,
+        }
+    )
+    # Plotting
+    fig = px.line(
+        df_plot,
+        x="Fecha",
+        y=["Valor Real", "Predicción"],
+        markers=True,
+        labels={"value": "Flete producción mean", "variable": "Series"},
+        title=title,
+    )
+
+    fig.update_layout(legend_title_text="")
+    fig.show()
