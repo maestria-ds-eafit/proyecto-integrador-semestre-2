@@ -218,7 +218,7 @@ def sarima_rolling_training_rolling_prediction(
         model = SARIMAX(
             history, order=arima_order, seasonal_order=seasonal_order, exog=exog
         )
-        model_fit = model.fit()
+        model_fit = model.fit(disp=False)
         yhat = model_fit.forecast()[0]
         predictions.append(yhat)
         # Observation
