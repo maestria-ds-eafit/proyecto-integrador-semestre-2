@@ -1,12 +1,17 @@
-from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error
+import logging
+from concurrent.futures import ProcessPoolExecutor
+from math import sqrt
+
+import numpy as np
+import pandas as pd
+import plotly.express as px
+from sklearn.metrics import (
+    mean_absolute_error,
+    mean_absolute_percentage_error,
+    mean_squared_error,
+)
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.statespace.sarimax import SARIMAX
-from math import sqrt
-import numpy as np
-from concurrent.futures import ProcessPoolExecutor
-import logging
-import plotly.express as px
-import pandas as pd
 
 
 def naive_model(train_df, test_df, column_name="FP_mean"):
@@ -39,10 +44,12 @@ def naive_model(train_df, test_df, column_name="FP_mean"):
     values = test_df[column_name].values
     rmse = sqrt(mean_squared_error(values, predictions))
     mape = mean_absolute_percentage_error(values, predictions)
+    mae = mean_absolute_error(values, predictions)
 
     print("Naive approach:")
     print(f"RMSE: {rmse}")
     print(f"MAPE: {round(mape*100, 2)}%")
+    print(f"MAE: {mae}")
 
     return rmse, mape
 
@@ -83,11 +90,13 @@ def arima_rolling_training_rolling_prediction(
     values = test_df[column].values
     mape = mean_absolute_percentage_error(values, predictions)
     rmse = sqrt(mean_squared_error(values, predictions))
+    mae = mean_absolute_error(values, predictions)
 
     # Reporting performance
     print(f"ARIMA Order: {arima_order}")
     print(f"RMSE: {rmse}")
     print(f"MAPE: {round(mape*100, 2)}%")
+    print(f"MAE: {mae}")
 
     return mape, rmse, [predictions, values]
 
@@ -123,11 +132,13 @@ def arima_train_once_predict_once(train_df, test_df, arima_order, column="FP_mea
     # Calculate performance metrics
     mape = mean_absolute_percentage_error(values, predictions)
     rmse = sqrt(mean_squared_error(values, predictions))
+    mae = mean_absolute_error(values, predictions)
 
     # Report performance
     print(f"ARIMA Order: {arima_order}")
     print(f"RMSE: {rmse}")
     print(f"MAPE: {round(mape*100, 2)}%")
+    print(f"MAE: {mae}")
 
     return mape, rmse, [predictions, values]
 
