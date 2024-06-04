@@ -240,12 +240,14 @@ def sarima_rolling_training_rolling_prediction(
     values = test_df[column].values
     mape = mean_absolute_percentage_error(values, predictions)
     rmse = sqrt(mean_squared_error(values, predictions))
+    mae = mean_absolute_error(values, predictions)
 
     # Reporting performance
     print(f"SARIMA Order: {arima_order}")
     print(f"Seasonal Order: {seasonal_order}")
     print(f"RMSE: {rmse}")
     print(f"MAPE: {round(mape*100, 2)}%")
+    print(f"MAE: {mae}")
 
     return mape, rmse, [predictions, values]
 
