@@ -272,7 +272,7 @@ def plot_arima(
         x="Fecha",
         y=["Valor Real", "Predicción"],
         markers=True,
-        labels={"value": "", "variable": "Series"},
+        labels={"value": "Gap", "variable": "Series"},
         title=title,
     )
 
