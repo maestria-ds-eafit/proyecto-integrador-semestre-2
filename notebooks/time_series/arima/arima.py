@@ -272,7 +272,7 @@ def plot_arima(
         x="Fecha",
         y=["Valor Real", "Predicción"],
         markers=True,
-        labels={"value": "Flete producción mean", "variable": "Series"},
+        labels={"value": "", "variable": "Series"},
         title=title,
     )
 
